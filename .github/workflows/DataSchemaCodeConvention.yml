@@ -1,14 +1,19 @@
 name: Data Schema Code Convention
 on:
   push:
+    branches: laboratory-work-4
   workflow_dispatch:
 jobs:
   DataSchemaLinter:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        file: [DataSchema.sql, DataSchemaModified.sql]
     steps:
       - name: Checkout Code in Repository
         uses: actions/checkout@v4
       - name: Start SQL Linter
         run: |
           pip install sqlfluff
-          sqlfluff lint $GITHUB_WORKSPACE/DataSchema*.sql --dialect postgres
+          sqlfluff lint $GITHUB_WORKSPACE/3-SoftwareConstruction/3.1-GitHubActions/${{ matrix.file }} --dialect sqlite
