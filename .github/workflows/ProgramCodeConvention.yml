@@ -1,21 +1,21 @@
 name: Program Code Convention
 on:
   push:
+    branches: laboratory-work-4
   workflow_dispatch:
 jobs:
   ProgramCodeLinter:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        file: [ProgramCode.dart, ProgramCodeModified.dart]
     steps:
       - name: Checkout Code in Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Lint Program Code
-        uses: super-linter/super-linter/slim@v7
-        env:
-          VALIDATE_JAVA: true
-          VALIDATE_ALL_CODEBASE: true
-          FILTER_REGEX_INCLUDE: .*ProgramCode.*\.java|.*package-info\.java
-          JAVA_FILE_NAME: sun_checks.xml
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+      - name: Check Formatting
+        run: dart format --output=none --set-exit-if-changed $GITHUB_WORKSPACE/3-SoftwareConstruction/3.1-GitHubActions/${{ matrix.file }}
+      - name: Analyze Code
+        run: dart analyze --fatal-infos $GITHUB_WORKSPACE/3-SoftwareConstruction/3.1-GitHubActions/${{ matrix.file }}
