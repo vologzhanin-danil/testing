@@ -2,7 +2,11 @@ name: Program Code Convention
 on:
   push:
   workflow_dispatch:
+permissions:
+  contents: read
+  statuses: write
 jobs:
+  # Експеримент 1: вихідний код, перевірка має пройти успішно
   ProgramCodeLinter:
     runs-on: ubuntu-latest
     steps:
@@ -15,7 +19,27 @@ jobs:
         env:
           VALIDATE_JAVA: true
           VALIDATE_ALL_CODEBASE: true
-          FILTER_REGEX_INCLUDE: .*ProgramCode.*\.java|.*package-info\.java
+          FILTER_REGEX_INCLUDE: .*/(ProgramCode|package-info)\.java
           JAVA_FILE_NAME: sun_checks.xml
           DEFAULT_BRANCH: main
+          MULTI_STATUS: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Експеримент 2: змінений код, перевірка має завершитись помилками
+  ProgramCodeModifiedLinter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code in Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Lint Program Code
+        uses: super-linter/super-linter/slim@v7
+        env:
+          VALIDATE_JAVA: true
+          VALIDATE_ALL_CODEBASE: true
+          FILTER_REGEX_INCLUDE: .*/ProgramCodeModified\.java
+          JAVA_FILE_NAME: sun_checks.xml
+          DEFAULT_BRANCH: main
+          MULTI_STATUS: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
